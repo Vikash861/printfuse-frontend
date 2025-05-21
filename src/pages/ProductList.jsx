@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useProduct } from "../context/ProductContext";
@@ -18,12 +19,13 @@ const ProductList = () => {
   const { products, fetchProducts, deleteProduct } = useProduct();
 
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
+        setLoading(true);
         await fetchProducts();
-        console.log(products);
       } catch (err) {
         console.error(err);
       } finally {
@@ -31,10 +33,33 @@ const ProductList = () => {
       }
     };
     loadProducts();
+    // eslint-disable-next-line
   }, []);
 
+  const handleDelete = async (id) => {
+    setDeletingId(id);
+    try {
+      await deleteProduct(id);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
@@ -70,9 +95,15 @@ const ProductList = () => {
                     </Button>
                     <Button
                       color="error"
-                      onClick={() => deleteProduct(product.id)}
+                      onClick={() => handleDelete(product.id)}
+                      disabled={deletingId === product.id}
+                      sx={{ ml: 1, minWidth: 80 }}
                     >
-                      Delete
+                      {deletingId === product.id ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        "Delete"
+                      )}
                     </Button>
                   </TableCell>
                 </TableRow>

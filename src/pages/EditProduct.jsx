@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TextField, Button, Typography, Box } from '@mui/material';
+import { TextField, Button, Typography, Box, CircularProgress } from '@mui/material';
 import { useProduct } from '../context/ProductContext';
 
 const EditProduct = () => {
@@ -10,6 +10,7 @@ const EditProduct = () => {
   const [price, setPrice] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { getProduct, updateProduct } = useProduct();
   const navigate = useNavigate();
 
@@ -30,11 +31,15 @@ const EditProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
       await updateProduct(id, { name, description, price, imageUrl });
       navigate('/');
     } catch (err) {
       setError('Failed to update product');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,9 +81,23 @@ const EditProduct = () => {
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
         />
-        <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-          Update Product
-        </Button>
+        <Box sx={{ position: 'relative', mt: 2 }}>
+          <Button type="submit" variant="contained" disabled={loading}>
+            Update Product
+          </Button>
+          {loading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                marginTop: '-12px',
+                marginLeft: '-12px',
+              }}
+            />
+          )}
+        </Box>
       </form>
     </Box>
   );

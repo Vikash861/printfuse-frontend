@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TextField, Button, Typography, Box } from '@mui/material';
+import { TextField, Button, Typography, Box, CircularProgress } from '@mui/material';
 import { useProduct } from '../context/ProductContext';
 
 const AddProduct = () => {
@@ -9,17 +9,22 @@ const AddProduct = () => {
   const [price, setPrice] = useState();
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { addProduct } = useProduct();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {  
     e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
       await addProduct({ name, description, price, imageUrl });
       navigate('/');
     } catch (err) {
       console.log(err);
       setError('Invalid Image Uri - WooCommerce');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,9 +66,29 @@ const AddProduct = () => {
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
         />
-        <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-          Add Product
-        </Button>
+        <Box sx={{ position: 'relative', mt: 2 }}>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={loading}
+            fullWidth
+          >
+            Add Product
+          </Button>
+          {loading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                color: 'primary.main',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                marginTop: '-12px',
+                marginLeft: '-12px',
+              }}
+            />
+          )}
+        </Box>
       </form>
     </Box>
   );
