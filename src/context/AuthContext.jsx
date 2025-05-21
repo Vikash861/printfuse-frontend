@@ -36,14 +36,7 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  const isAuthenticated = () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decodedToken = JSON.parse(atob(token.split('.')[1]));
-      return decodedToken.exp > Date.now() / 1000;
-    }
-    return false;
-  };
+  const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated }}>
